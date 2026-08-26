@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
 <title>Room Clock</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,16 +46,12 @@
   }
 
   .weekday{
-    font-family:'Anurati', sans-serif;
-    font-weight:400;
-    font-size:clamp(38px, 8.5vw, 100px);
-    letter-spacing:0.32em;
-    color:var(--ink);
-    line-height:1;
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:clamp(13px, 1.5vw, 19px);
+    letter-spacing:0.3em;
     text-transform:uppercase;
-    /* Anurati has no true lowercase, and O/0 read a bit tight - nudge the first
-       letter's left margin so the wide tracking looks centered, not offset */
-    padding-left:0.32em;
+    color:var(--ink-dim);
   }
 
   .date{
@@ -65,14 +63,30 @@
     color:var(--ink-dim);
   }
 
+  .time-row{
+    display:flex;
+    align-items:baseline;
+    gap:clamp(6px, 1vw, 12px);
+  }
+
   .time{
+    font-family:'Anurati', sans-serif;
+    font-weight:400;
+    font-size:clamp(44px, 10vw, 118px);
+    letter-spacing:0.14em;
+    color:var(--ink);
+    line-height:1;
+    font-variant-numeric: tabular-nums;
+    padding-left:0.14em;
+  }
+
+  .meridiem{
     font-family:'Quicksand', sans-serif;
     font-weight:500;
-    font-size:clamp(15px, 1.7vw, 22px);
+    font-size:clamp(14px, 1.6vw, 24px);
     letter-spacing:0.3em;
     text-transform:uppercase;
-    color:var(--ink);
-    font-variant-numeric: tabular-nums;
+    color:var(--ink-dim);
   }
 
   /* ---------- bottom bar: now playing + weather ---------- */
@@ -94,9 +108,9 @@
   }
 
   .np-art{
-    width:56px;
-    height:56px;
-    border-radius:4px;
+    width:80px;
+    height:80px;
+    border-radius:6px;
     object-fit:cover;
     background:rgba(255,255,255,0.06);
     flex-shrink:0;
@@ -105,50 +119,50 @@
   .np-info{
     display:flex;
     flex-direction:column;
-    gap:6px;
+    gap:8px;
     min-width:0;
   }
 
   .np-track{
     font-family:'Quicksand', sans-serif;
     font-weight:500;
-    font-size:14px;
+    font-size:19px;
     color:var(--ink);
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width:220px;
+    max-width:300px;
   }
 
   .np-artist{
     font-family:'Quicksand', sans-serif;
     font-weight:400;
-    font-size:12px;
+    font-size:15px;
     color:var(--ink-dim);
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    max-width:220px;
+    max-width:300px;
   }
 
   .np-progress-row{
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:10px;
   }
 
   .np-time{
     font-family:'Quicksand', sans-serif;
-    font-size:10px;
+    font-size:12px;
     color:var(--ink-dim);
     font-variant-numeric:tabular-nums;
   }
 
   .np-bar-track{
-    width:140px;
-    height:2px;
+    width:190px;
+    height:3px;
     background:rgba(255,255,255,0.14);
-    border-radius:1px;
+    border-radius:1.5px;
     overflow:hidden;
   }
 
@@ -163,23 +177,23 @@
     border:1px solid rgba(255,255,255,0.25);
     color:var(--ink-dim);
     font-family:'Quicksand', sans-serif;
-    font-size:11px;
+    font-size:13px;
     letter-spacing:0.15em;
     text-transform:uppercase;
-    padding:9px 16px;
-    border-radius:3px;
+    padding:11px 20px;
+    border-radius:4px;
     cursor:pointer;
   }
 
   .weather{
     display:flex;
     align-items:center;
-    gap:14px;
+    gap:18px;
   }
 
   .weather-icon svg{
-    width:38px;
-    height:38px;
+    width:52px;
+    height:52px;
     color:var(--ink);
   }
 
@@ -187,19 +201,19 @@
     display:flex;
     flex-direction:column;
     align-items:flex-end;
-    gap:2px;
+    gap:4px;
   }
 
   .weather-temp{
     font-family:'Quicksand', sans-serif;
     font-weight:500;
-    font-size:26px;
+    font-size:36px;
     color:var(--ink);
   }
 
   .weather-desc{
     font-family:'Quicksand', sans-serif;
-    font-size:11px;
+    font-size:13px;
     letter-spacing:0.15em;
     text-transform:uppercase;
     color:var(--ink-dim);
@@ -208,9 +222,12 @@
 </head>
 <body>
   <div class="stage">
+    <div class="time-row">
+      <span class="time" id="time"></span>
+      <span class="meridiem" id="meridiem"></span>
+    </div>
     <div class="weekday" id="weekday"></div>
     <div class="date" id="date"></div>
-    <div class="time" id="time"></div>
   </div>
 
   <div class="bottom-bar">
@@ -243,6 +260,7 @@
   const weekdayEl = document.getElementById('weekday');
   const dateEl = document.getElementById('date');
   const timeEl = document.getElementById('time');
+  const meridiemEl = document.getElementById('meridiem');
 
   const weekdays = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
   const months = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
@@ -257,9 +275,10 @@
     h = h % 12;
     if(h === 0) h = 12;
 
+    timeEl.textContent = `${h}:${pad(m)}`;
+    meridiemEl.textContent = meridiem;
     weekdayEl.textContent = weekdays[now.getDay()];
     dateEl.textContent = `${now.getDate()} ${months[now.getMonth()]}, ${now.getFullYear()}.`;
-    timeEl.textContent = `- ${h}:${pad(m)} ${meridiem} -`;
   }
 
   render();
