@@ -43,6 +43,21 @@
     flex-direction:column;
     align-items:center;
     gap:clamp(14px, 2.4vh, 26px);
+    transition: transform .5s cubic-bezier(.4,0,.2,1), opacity .35s ease;
+    cursor:default;
+    z-index:2;
+  }
+
+  .stage.shift-right{
+    transform: scale(0.6) translateX(30vw);
+    opacity:0.8;
+    cursor:pointer;
+  }
+
+  .stage.shift-left{
+    transform: scale(0.6) translateX(-30vw);
+    opacity:0.8;
+    cursor:pointer;
   }
 
   .weekday{
@@ -105,6 +120,41 @@
     display:none;
     align-items:center;
     gap:14px;
+    cursor:pointer;
+    transition: opacity .3s ease;
+  }
+
+  .np-idle{
+    display:none;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    transition: opacity .3s ease;
+  }
+
+  .np-idle-icon{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+
+  .np-idle-icon svg{
+    width:22px;
+    height:22px;
+    color:var(--ink-dim);
+  }
+
+  .np-idle-text{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:15px;
+    color:var(--ink-dim);
+    max-width:220px;
   }
 
   .np-art{
@@ -189,6 +239,8 @@
     display:flex;
     align-items:center;
     gap:18px;
+    cursor:pointer;
+    transition: opacity .3s ease;
   }
 
   .weather-icon svg{
@@ -218,6 +270,249 @@
     text-transform:uppercase;
     color:var(--ink-dim);
   }
+
+  /* ---------- expandable side panels ---------- */
+
+  .side-panel{
+    position:fixed;
+    top:50%;
+    transform:translateY(-50%) scale(0.85);
+    width:0;
+    height:0;
+    opacity:0;
+    overflow:hidden;
+    border-radius:24px;
+    background:rgba(255,255,255,0.045);
+    border:1px solid rgba(255,255,255,0.08);
+    pointer-events:none;
+    transition: width .5s cubic-bezier(.4,0,.2,1), height .5s cubic-bezier(.4,0,.2,1),
+                opacity .35s ease, transform .5s cubic-bezier(.4,0,.2,1);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:clamp(20px, 3vw, 36px);
+    z-index:3;
+  }
+
+  .panel-left{ left:clamp(20px, 3.5vw, 48px); }
+  .panel-right{ right:clamp(20px, 3.5vw, 48px); }
+
+  .side-panel.expanded{
+    width:min(46vw, 78vh);
+    height:min(46vw, 78vh);
+    opacity:1;
+    transform:translateY(-50%) scale(1);
+    pointer-events:auto;
+  }
+
+  .panel-art{
+    width:clamp(120px, 16vw, 220px);
+    height:clamp(120px, 16vw, 220px);
+    border-radius:12px;
+    object-fit:cover;
+    background:rgba(255,255,255,0.06);
+    margin-bottom:clamp(18px, 2.4vw, 30px);
+  }
+
+  .panel-track{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:clamp(18px, 2vw, 26px);
+    color:var(--ink);
+    text-align:center;
+    max-width:90%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .panel-artist{
+    font-family:'Quicksand', sans-serif;
+    font-weight:400;
+    font-size:clamp(13px, 1.3vw, 17px);
+    color:var(--ink-dim);
+    margin-top:6px;
+    text-align:center;
+    max-width:90%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .panel-progress-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:clamp(18px, 2.4vw, 28px);
+    width:80%;
+  }
+
+  .panel-time{
+    font-family:'Quicksand', sans-serif;
+    font-size:12px;
+    color:var(--ink-dim);
+    font-variant-numeric:tabular-nums;
+  }
+
+  .panel-bar-track{
+    flex:1;
+    height:3px;
+    background:rgba(255,255,255,0.14);
+    border-radius:1.5px;
+    overflow:hidden;
+  }
+
+  .panel-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--ink);
+  }
+
+  .panel-controls{
+    display:flex;
+    align-items:center;
+    gap:clamp(24px, 3vw, 40px);
+    margin-top:clamp(22px, 3vw, 34px);
+  }
+
+  .panel-controls button{
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .panel-controls button svg{
+    width:22px;
+    height:22px;
+  }
+
+  #btnPlayPause{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.3);
+  }
+
+  #btnPlayPause svg{
+    width:20px;
+    height:20px;
+  }
+
+  .panel-idle{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+  }
+
+  .panel-idle-icon{
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .panel-idle-icon svg{
+    width:30px;
+    height:30px;
+    color:var(--ink-dim);
+  }
+
+  .panel-idle-text{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:16px;
+    color:var(--ink-dim);
+  }
+
+  /* weather panel */
+
+  .panel-weather-header{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+  }
+
+  .panel-weather-icon svg{
+    width:56px;
+    height:56px;
+    color:var(--ink);
+  }
+
+  .panel-weather-temp{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:clamp(36px, 4.5vw, 56px);
+    color:var(--ink);
+  }
+
+  .panel-weather-desc{
+    font-family:'Quicksand', sans-serif;
+    font-size:13px;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+  }
+
+  .panel-weather-hilo{
+    font-family:'Quicksand', sans-serif;
+    font-size:13px;
+    color:var(--ink-dim);
+    margin-top:4px;
+    letter-spacing:0.05em;
+  }
+
+  .panel-weather-hilo span{ color:var(--ink); }
+
+  .panel-hourly{
+    display:flex;
+    gap:clamp(14px, 2vw, 22px);
+    margin-top:clamp(24px, 3.4vw, 38px);
+    overflow-x:auto;
+    max-width:100%;
+    padding:4px 2px 8px;
+    scrollbar-width:none;
+  }
+
+  .panel-hourly::-webkit-scrollbar{ display:none; }
+
+  .hour-card{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    flex-shrink:0;
+  }
+
+  .hour-label{
+    font-family:'Quicksand', sans-serif;
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--ink-dim);
+  }
+
+  .hour-card svg{
+    width:20px;
+    height:20px;
+    color:var(--ink);
+  }
+
+  .hour-temp{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:14px;
+    color:var(--ink);
+  }
 </style>
 </head>
 <body>
@@ -244,6 +539,12 @@
           </div>
         </div>
       </div>
+      <div class="np-idle" id="npIdle">
+        <div class="np-idle-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 15c4-3 10-3 14 0"/><path d="M7 11.5c3.2-2.2 6.8-2.2 10 0"/><circle cx="12" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div class="np-idle-text">Nothing is playing right now</div>
+      </div>
       <button class="connect-btn" id="connectBtn" style="display:none;">Connect Spotify</button>
     </div>
 
@@ -256,11 +557,88 @@
     </div>
   </div>
 
+  <div class="side-panel panel-left" id="spotifyPanel">
+    <div class="panel-now-playing" id="panelNowPlaying" style="display:none; flex-direction:column; align-items:center;">
+      <img class="panel-art" id="panelArt" alt="">
+      <div class="panel-track" id="panelTrack"></div>
+      <div class="panel-artist" id="panelArtist"></div>
+      <div class="panel-progress-row">
+        <span class="panel-time" id="panelElapsed">0:00</span>
+        <div class="panel-bar-track"><div class="panel-bar-fill" id="panelBarFill"></div></div>
+        <span class="panel-time" id="panelDuration">0:00</span>
+      </div>
+      <div class="panel-controls">
+        <button id="btnPrev" aria-label="Previous">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="2.4" height="16"/><polygon points="19,4 19,20 8,12"/></svg>
+        </button>
+        <button id="btnPlayPause" aria-label="Play or pause">
+          <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><polygon points="7,4 20,12 7,20"/></svg>
+          <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button id="btnNext" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="17.6" y="4" width="2.4" height="16"/><polygon points="5,4 5,20 16,12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="panel-idle" id="panelIdle">
+      <div class="panel-idle-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 15c4-3 10-3 14 0"/><path d="M7 11.5c3.2-2.2 6.8-2.2 10 0"/><circle cx="12" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg>
+      </div>
+      <div class="panel-idle-text">Nothing is playing right now</div>
+    </div>
+  </div>
+
+  <div class="side-panel panel-right" id="weatherPanel">
+    <div class="panel-weather-header">
+      <div class="panel-weather-icon" id="panelWeatherIcon"></div>
+      <div class="panel-weather-temp" id="panelWeatherTemp">--°</div>
+      <div class="panel-weather-desc" id="panelWeatherDesc"></div>
+      <div class="panel-weather-hilo" id="panelWeatherHiLo"></div>
+    </div>
+    <div class="panel-hourly" id="panelHourly"></div>
+  </div>
+
 <script>
   const weekdayEl = document.getElementById('weekday');
   const dateEl = document.getElementById('date');
   const timeEl = document.getElementById('time');
   const meridiemEl = document.getElementById('meridiem');
+  const stageEl = document.querySelector('.stage');
+  const spotifyPanel = document.getElementById('spotifyPanel');
+  const weatherPanel = document.getElementById('weatherPanel');
+
+  // ---------- expand / collapse state machine ----------
+  let expanded = null; // null | 'spotify' | 'weather'
+
+  function collapseAll(){
+    expanded = null;
+    spotifyPanel.classList.remove('expanded');
+    weatherPanel.classList.remove('expanded');
+    stageEl.classList.remove('shift-right', 'shift-left');
+  }
+
+  function expandSpotify(){
+    if(expanded === 'spotify'){ collapseAll(); return; }
+    weatherPanel.classList.remove('expanded');
+    spotifyPanel.classList.add('expanded');
+    stageEl.classList.remove('shift-left');
+    stageEl.classList.add('shift-right');
+    expanded = 'spotify';
+  }
+
+  function expandWeather(){
+    if(expanded === 'weather'){ collapseAll(); return; }
+    spotifyPanel.classList.remove('expanded');
+    weatherPanel.classList.add('expanded');
+    stageEl.classList.remove('shift-right');
+    stageEl.classList.add('shift-left');
+    expanded = 'weather';
+  }
+
+  stageEl.addEventListener('click', () => { if(expanded) collapseAll(); });
+  document.getElementById('npWrap').addEventListener('click', expandSpotify);
+  document.getElementById('npIdle').addEventListener('click', expandSpotify);
+  document.getElementById('weatherWrap').addEventListener('click', expandWeather);
 
   const weekdays = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
   const months = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
@@ -323,13 +701,42 @@
 
   async function fetchWeather(lat, lon){
     try{
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`);
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto`);
       const data = await res.json();
+
       const temp = Math.round(data.current.temperature_2m);
       const w = weatherFromCode(data.current.weather_code);
       document.getElementById('weatherTemp').textContent = temp + '°';
       document.getElementById('weatherDesc').textContent = w.desc.toUpperCase();
       document.getElementById('weatherIcon').innerHTML = weatherIcons[w.icon];
+
+      // mirror into the expanded panel header
+      document.getElementById('panelWeatherTemp').textContent = temp + '°';
+      document.getElementById('panelWeatherDesc').textContent = w.desc.toUpperCase();
+      document.getElementById('panelWeatherIcon').innerHTML = weatherIcons[w.icon];
+
+      const hi = Math.round(data.daily.temperature_2m_max[0]);
+      const lo = Math.round(data.daily.temperature_2m_min[0]);
+      document.getElementById('panelWeatherHiLo').innerHTML = `<span>${hi}°</span> / <span>${lo}°</span>`;
+
+      // hourly strip - next 12 hours from right now
+      const nowHourIdx = new Date().getHours();
+      const times = data.hourly.time.slice(nowHourIdx, nowHourIdx + 12);
+      const temps = data.hourly.temperature_2m.slice(nowHourIdx, nowHourIdx + 12);
+      const codes = data.hourly.weather_code.slice(nowHourIdx, nowHourIdx + 12);
+
+      const hourlyEl = document.getElementById('panelHourly');
+      hourlyEl.innerHTML = times.map((t, i) => {
+        const hh = parseInt(t.substring(11, 13), 10);
+        const period = hh >= 12 ? 'PM' : 'AM';
+        let h12 = hh % 12; if(h12 === 0) h12 = 12;
+        const hw = weatherFromCode(codes[i]);
+        return `<div class="hour-card">
+          <div class="hour-label">${i === 0 ? 'NOW' : h12 + period}</div>
+          ${weatherIcons[hw.icon]}
+          <div class="hour-temp">${Math.round(temps[i])}°</div>
+        </div>`;
+      }).join('');
     }catch(e){
       document.getElementById('weatherDesc').textContent = 'Unavailable';
     }
@@ -354,7 +761,7 @@
   // Fill in your own Client ID after registering an app at developer.spotify.com/dashboard
   const SPOTIFY_CLIENT_ID = '7025f027be314eb9a1cd08e9b3b23968';
   const SPOTIFY_REDIRECT_URI = window.location.origin + window.location.pathname;
-  const SPOTIFY_SCOPES = 'user-read-currently-playing user-read-playback-state';
+  const SPOTIFY_SCOPES = 'user-read-currently-playing user-read-playback-state user-modify-playback-state';
 
   function generateRandomString(length){
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -460,28 +867,53 @@
     document.getElementById('npBarFill').style.width = pct + '%';
     document.getElementById('npElapsed').textContent = formatMs(localProgress);
     document.getElementById('npDuration').textContent = formatMs(localDuration);
+    document.getElementById('panelBarFill').style.width = pct + '%';
+    document.getElementById('panelElapsed').textContent = formatMs(localProgress);
+    document.getElementById('panelDuration').textContent = formatMs(localDuration);
+  }
+
+  function setPlayPauseIcon(){
+    document.getElementById('playIcon').style.display = isPlayingNow ? 'none' : '';
+    document.getElementById('pauseIcon').style.display = isPlayingNow ? '' : 'none';
   }
 
   function showConnectPrompt(){
     document.getElementById('npWrap').style.display = 'none';
+    document.getElementById('npIdle').style.display = 'none';
     document.getElementById('connectBtn').style.display = 'inline-block';
   }
 
   function showNothingPlaying(){
     document.getElementById('npWrap').style.display = 'none';
+    document.getElementById('npIdle').style.display = 'flex';
     document.getElementById('connectBtn').style.display = 'none';
+    document.getElementById('panelNowPlaying').style.display = 'none';
+    document.getElementById('panelIdle').style.display = 'flex';
   }
 
   function updateNowPlaying(data){
     document.getElementById('npWrap').style.display = 'flex';
+    document.getElementById('npIdle').style.display = 'none';
     document.getElementById('connectBtn').style.display = 'none';
-    document.getElementById('npArt').src = data.item.album.images[0]?.url || '';
-    document.getElementById('npTrack').textContent = data.item.name;
-    document.getElementById('npArtist').textContent = data.item.artists.map(a => a.name).join(', ');
+    document.getElementById('panelNowPlaying').style.display = 'flex';
+    document.getElementById('panelIdle').style.display = 'none';
+
+    const art = data.item.album.images[0]?.url || '';
+    const track = data.item.name;
+    const artist = data.item.artists.map(a => a.name).join(', ');
+
+    document.getElementById('npArt').src = art;
+    document.getElementById('npTrack').textContent = track;
+    document.getElementById('npArtist').textContent = artist;
+    document.getElementById('panelArt').src = art;
+    document.getElementById('panelTrack').textContent = track;
+    document.getElementById('panelArtist').textContent = artist;
+
     localProgress = data.progress_ms;
     localDuration = data.item.duration_ms;
     isPlayingNow = data.is_playing;
     renderProgress();
+    setPlayPauseIcon();
   }
 
   async function pollNowPlaying(){
@@ -508,6 +940,39 @@
   }, 1000);
 
   document.getElementById('connectBtn').addEventListener('click', spotifyLogin);
+
+  // ---------- playback controls ----------
+  async function spotifyControl(method, endpoint){
+    const token = await getValidSpotifyToken();
+    if(!token) return;
+    try{
+      await fetch(`https://api.spotify.com/v1/me/player/${endpoint}`, {
+        method,
+        headers: { Authorization: 'Bearer ' + token }
+      });
+    }catch(e){ /* device may be offline - nothing more we can do here */ }
+    // give Spotify a beat to update, then resync real state
+    setTimeout(pollNowPlaying, 400);
+  }
+
+  document.getElementById('btnPlayPause').addEventListener('click', (e) => {
+    e.stopPropagation();
+    // optimistic flip so the icon feels instant
+    isPlayingNow = !isPlayingNow;
+    setPlayPauseIcon();
+    spotifyControl('PUT', isPlayingNow ? 'play' : 'pause');
+  });
+  document.getElementById('btnNext').addEventListener('click', (e) => {
+    e.stopPropagation();
+    spotifyControl('POST', 'next');
+  });
+  document.getElementById('btnPrev').addEventListener('click', (e) => {
+    e.stopPropagation();
+    spotifyControl('POST', 'previous');
+  });
+  // keep taps inside the panel from bubbling up and collapsing it
+  spotifyPanel.addEventListener('click', (e) => e.stopPropagation());
+  weatherPanel.addEventListener('click', (e) => e.stopPropagation());
 
   (async function initSpotify(){
     await handleSpotifyRedirect();
