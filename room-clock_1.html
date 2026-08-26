@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Room Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/anurati" rel="stylesheet">
+<style>
+  :root{
+    --bg: #000000;
+    --ink: #ffffff;
+    --ink-dim: rgba(255,255,255,0.55);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+
+  html,body{
+    height:100%;
+    width:100%;
+    overflow:hidden;
+    background: var(--bg);
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    width:100vw;
+    cursor:none;
+  }
+
+  .stage{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:clamp(14px, 2.4vh, 26px);
+  }
+
+  .weekday{
+    font-family:'Anurati', sans-serif;
+    font-weight:400;
+    font-size:clamp(38px, 8.5vw, 100px);
+    letter-spacing:0.32em;
+    color:var(--ink);
+    line-height:1;
+    text-transform:uppercase;
+    /* Anurati has no true lowercase, and O/0 read a bit tight - nudge the first
+       letter's left margin so the wide tracking looks centered, not offset */
+    padding-left:0.32em;
+  }
+
+  .date{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:clamp(13px, 1.5vw, 19px);
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+  }
+
+  .time{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:clamp(15px, 1.7vw, 22px);
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- bottom bar: now playing + weather ---------- */
+
+  .bottom-bar{
+    position:fixed;
+    left:0; right:0;
+    bottom:clamp(24px, 4vh, 48px);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    padding:0 clamp(24px, 5vw, 64px);
+  }
+
+  .now-playing{
+    display:none;
+    align-items:center;
+    gap:14px;
+  }
+
+  .np-art{
+    width:56px;
+    height:56px;
+    border-radius:4px;
+    object-fit:cover;
+    background:rgba(255,255,255,0.06);
+    flex-shrink:0;
+  }
+
+  .np-info{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-width:0;
+  }
+
+  .np-track{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:14px;
+    color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:220px;
+  }
+
+  .np-artist{
+    font-family:'Quicksand', sans-serif;
+    font-weight:400;
+    font-size:12px;
+    color:var(--ink-dim);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:220px;
+  }
+
+  .np-progress-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .np-time{
+    font-family:'Quicksand', sans-serif;
+    font-size:10px;
+    color:var(--ink-dim);
+    font-variant-numeric:tabular-nums;
+  }
+
+  .np-bar-track{
+    width:140px;
+    height:2px;
+    background:rgba(255,255,255,0.14);
+    border-radius:1px;
+    overflow:hidden;
+  }
+
+  .np-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--ink);
+  }
+
+  .connect-btn{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.25);
+    color:var(--ink-dim);
+    font-family:'Quicksand', sans-serif;
+    font-size:11px;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    padding:9px 16px;
+    border-radius:3px;
+    cursor:pointer;
+  }
+
+  .weather{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+
+  .weather-icon svg{
+    width:38px;
+    height:38px;
+    color:var(--ink);
+  }
+
+  .weather-info{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:2px;
+  }
+
+  .weather-temp{
+    font-family:'Quicksand', sans-serif;
+    font-weight:500;
+    font-size:26px;
+    color:var(--ink);
+  }
+
+  .weather-desc{
+    font-family:'Quicksand', sans-serif;
+    font-size:11px;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="weekday" id="weekday"></div>
+    <div class="date" id="date"></div>
+    <div class="time" id="time"></div>
+  </div>
+
+  <div class="bottom-bar">
+    <div>
+      <div class="now-playing" id="npWrap">
+        <img class="np-art" id="npArt" alt="">
+        <div class="np-info">
+          <div class="np-track" id="npTrack"></div>
+          <div class="np-artist" id="npArtist"></div>
+          <div class="np-progress-row">
+            <span class="np-time" id="npElapsed">0:00</span>
+            <div class="np-bar-track"><div class="np-bar-fill" id="npBarFill"></div></div>
+            <span class="np-time" id="npDuration">0:00</span>
+          </div>
+        </div>
+      </div>
+      <button class="connect-btn" id="connectBtn" style="display:none;">Connect Spotify</button>
+    </div>
+
+    <div class="weather" id="weatherWrap">
+      <div class="weather-info">
+        <div class="weather-temp" id="weatherTemp">--°</div>
+        <div class="weather-desc" id="weatherDesc">Loading</div>
+      </div>
+      <div class="weather-icon" id="weatherIcon"></div>
+    </div>
+  </div>
+
+<script>
+  const weekdayEl = document.getElementById('weekday');
+  const dateEl = document.getElementById('date');
+  const timeEl = document.getElementById('time');
+
+  const weekdays = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  const months = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+
+  function pad(n){ return n.toString().padStart(2,'0'); }
+
+  function render(){
+    const now = new Date();
+    let h = now.getHours();
+    const m = now.getMinutes();
+    const meridiem = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    if(h === 0) h = 12;
+
+    weekdayEl.textContent = weekdays[now.getDay()];
+    dateEl.textContent = `${now.getDate()} ${months[now.getMonth()]}, ${now.getFullYear()}.`;
+    timeEl.textContent = `- ${h}:${pad(m)} ${meridiem} -`;
+  }
+
+  render();
+  setInterval(render, 1000);
+
+  // Keep the screen awake while this page is active, where supported.
+  let wakeLock = null;
+  async function requestWakeLock(){
+    try{
+      if('wakeLock' in navigator){
+        wakeLock = await navigator.wakeLock.request('screen');
+      }
+    }catch(e){ /* Guided Access + Auto-Lock: Never is the fallback */ }
+  }
+  requestWakeLock();
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible') requestWakeLock();
+  });
+
+  // ================= WEATHER (Open-Meteo, no API key needed) =================
+
+  const FALLBACK_LAT = 29.6516, FALLBACK_LON = -82.3248; // Gainesville, FL fallback
+
+  const weatherIcons = {
+    clear: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="22"/><line x1="2" y1="12" x2="4.5" y2="12"/><line x1="19.5" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="6.6" y2="6.6"/><line x1="17.4" y1="17.4" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="6.6" y2="17.4"/><line x1="17.4" y1="6.6" x2="19.1" y2="4.9"/></svg>`,
+    cloud: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 16.9 8.5 4.5 4.5 0 0 1 16 18H6.5z"/></svg>`,
+    rain: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 16.9 5.5 4.5 4.5 0 0 1 16 15H6.5z"/><line x1="8" y1="18" x2="7" y2="21"/><line x1="12" y1="18" x2="11" y2="21"/><line x1="16" y1="18" x2="15" y2="21"/></svg>`,
+    snow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 16.9 5.5 4.5 4.5 0 0 1 16 15H6.5z"/><line x1="8" y1="18" x2="8" y2="21"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="16" y1="18" x2="16" y2="21"/></svg>`,
+    storm: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 14a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 16.9 4.5 4.5 4.5 0 0 1 16 14H6.5z"/><polyline points="12,15 10,19 13,19 11,23"/></svg>`,
+    fog: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="13" x2="20" y2="13"/><line x1="4" y1="17" x2="20" y2="17"/></svg>`
+  };
+
+  function weatherFromCode(code){
+    if(code === 0) return {icon:'clear', desc:'Clear'};
+    if([1,2,3].includes(code)) return {icon:'cloud', desc: code===1?'Mostly Clear':code===2?'Partly Cloudy':'Overcast'};
+    if([45,48].includes(code)) return {icon:'fog', desc:'Fog'};
+    if([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) return {icon:'rain', desc:'Rain'};
+    if([71,73,75,77,85,86].includes(code)) return {icon:'snow', desc:'Snow'};
+    if([95,96,99].includes(code)) return {icon:'storm', desc:'Storm'};
+    return {icon:'cloud', desc:'--'};
+  }
+
+  async function fetchWeather(lat, lon){
+    try{
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`);
+      const data = await res.json();
+      const temp = Math.round(data.current.temperature_2m);
+      const w = weatherFromCode(data.current.weather_code);
+      document.getElementById('weatherTemp').textContent = temp + '°';
+      document.getElementById('weatherDesc').textContent = w.desc.toUpperCase();
+      document.getElementById('weatherIcon').innerHTML = weatherIcons[w.icon];
+    }catch(e){
+      document.getElementById('weatherDesc').textContent = 'Unavailable';
+    }
+  }
+
+  function initWeather(){
+    if('geolocation' in navigator){
+      navigator.geolocation.getCurrentPosition(
+        pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+        () => fetchWeather(FALLBACK_LAT, FALLBACK_LON),
+        { timeout: 5000 }
+      );
+    } else {
+      fetchWeather(FALLBACK_LAT, FALLBACK_LON);
+    }
+  }
+
+  initWeather();
+  setInterval(initWeather, 15 * 60 * 1000);
+
+  // ================= SPOTIFY NOW PLAYING (Authorization Code + PKCE) =================
+  // Fill in your own Client ID after registering an app at developer.spotify.com/dashboard
+  const SPOTIFY_CLIENT_ID = 'YOUR_SPOTIFY_CLIENT_ID';
+  const SPOTIFY_REDIRECT_URI = window.location.origin + window.location.pathname;
+  const SPOTIFY_SCOPES = 'user-read-currently-playing user-read-playback-state';
+
+  function generateRandomString(length){
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const values = crypto.getRandomValues(new Uint8Array(length));
+    values.forEach(v => result += chars[v % chars.length]);
+    return result;
+  }
+
+  async function sha256(plain){
+    const data = new TextEncoder().encode(plain);
+    return await crypto.subtle.digest('SHA-256', data);
+  }
+
+  function base64urlencode(buffer){
+    let str = '';
+    const bytes = new Uint8Array(buffer);
+    bytes.forEach(b => str += String.fromCharCode(b));
+    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  async function spotifyLogin(){
+    const verifier = generateRandomString(64);
+    localStorage.setItem('sp_verifier', verifier);
+    const challenge = base64urlencode(await sha256(verifier));
+    const params = new URLSearchParams({
+      client_id: SPOTIFY_CLIENT_ID,
+      response_type: 'code',
+      redirect_uri: SPOTIFY_REDIRECT_URI,
+      scope: SPOTIFY_SCOPES,
+      code_challenge_method: 'S256',
+      code_challenge: challenge
+    });
+    window.location = 'https://accounts.spotify.com/authorize?' + params.toString();
+  }
+
+  function saveSpotifyTokens(data){
+    localStorage.setItem('sp_access_token', data.access_token);
+    if(data.refresh_token) localStorage.setItem('sp_refresh_token', data.refresh_token);
+    localStorage.setItem('sp_expires_at', Date.now() + (data.expires_in * 1000));
+  }
+
+  async function handleSpotifyRedirect(){
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if(!code) return;
+    const verifier = localStorage.getItem('sp_verifier');
+    const body = new URLSearchParams({
+      client_id: SPOTIFY_CLIENT_ID,
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: SPOTIFY_REDIRECT_URI,
+      code_verifier: verifier
+    });
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body
+    });
+    const data = await res.json();
+    if(data.access_token){
+      saveSpotifyTokens(data);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+
+  async function getValidSpotifyToken(){
+    const expiresAt = parseInt(localStorage.getItem('sp_expires_at') || '0');
+    if(Date.now() < expiresAt - 30000){
+      return localStorage.getItem('sp_access_token');
+    }
+    const refreshToken = localStorage.getItem('sp_refresh_token');
+    if(!refreshToken) return null;
+    const body = new URLSearchParams({
+      client_id: SPOTIFY_CLIENT_ID,
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken
+    });
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body
+    });
+    const data = await res.json();
+    if(data.access_token){
+      saveSpotifyTokens({...data, refresh_token: data.refresh_token || refreshToken});
+      return data.access_token;
+    }
+    return null;
+  }
+
+  let localProgress = 0, localDuration = 0, isPlayingNow = false;
+
+  function formatMs(ms){
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  function renderProgress(){
+    const pct = localDuration ? Math.min(100, (localProgress / localDuration) * 100) : 0;
+    document.getElementById('npBarFill').style.width = pct + '%';
+    document.getElementById('npElapsed').textContent = formatMs(localProgress);
+    document.getElementById('npDuration').textContent = formatMs(localDuration);
+  }
+
+  function showConnectPrompt(){
+    document.getElementById('npWrap').style.display = 'none';
+    document.getElementById('connectBtn').style.display = 'inline-block';
+  }
+
+  function showNothingPlaying(){
+    document.getElementById('npWrap').style.display = 'none';
+    document.getElementById('connectBtn').style.display = 'none';
+  }
+
+  function updateNowPlaying(data){
+    document.getElementById('npWrap').style.display = 'flex';
+    document.getElementById('connectBtn').style.display = 'none';
+    document.getElementById('npArt').src = data.item.album.images[0]?.url || '';
+    document.getElementById('npTrack').textContent = data.item.name;
+    document.getElementById('npArtist').textContent = data.item.artists.map(a => a.name).join(', ');
+    localProgress = data.progress_ms;
+    localDuration = data.item.duration_ms;
+    isPlayingNow = data.is_playing;
+    renderProgress();
+  }
+
+  async function pollNowPlaying(){
+    const token = await getValidSpotifyToken();
+    if(!token){ showConnectPrompt(); return; }
+    try{
+      const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if(res.status === 204){ showNothingPlaying(); return; }
+      if(res.status === 401){ showConnectPrompt(); return; }
+      const data = await res.json();
+      if(!data || !data.item){ showNothingPlaying(); return; }
+      updateNowPlaying(data);
+    }catch(e){ /* network hiccup - keep last known state on screen */ }
+  }
+
+  // smooth the progress bar between the ~8s polls
+  setInterval(() => {
+    if(isPlayingNow && localDuration){
+      localProgress = Math.min(localDuration, localProgress + 1000);
+      renderProgress();
+    }
+  }, 1000);
+
+  document.getElementById('connectBtn').addEventListener('click', spotifyLogin);
+
+  (async function initSpotify(){
+    await handleSpotifyRedirect();
+    pollNowPlaying();
+    setInterval(pollNowPlaying, 8000);
+  })();
+</script>
+</body>
+</html>
