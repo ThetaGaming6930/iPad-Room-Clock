@@ -383,7 +383,8 @@
      doesn't, so this is scoped to #weatherPanel only */
   #weatherPanel{
     justify-content:flex-end;
-    gap:clamp(26px, 4vw, 48px);
+    gap:clamp(38px, 5.5vw, 64px);
+    padding-bottom:clamp(38px, 5vw, 60px) !important;
   }
 
   .side-panel.expanded{
@@ -543,7 +544,7 @@
     flex-direction:column;
     align-items:center;
     gap:6px;
-    padding-top:100px;
+    padding-top:190px;
   }
 
   .panel-weather-icon svg{
@@ -583,7 +584,7 @@
     position:absolute;
     left:0; right:0;
     top:0;
-    height:100px;
+    height:190px;
     z-index:-1;
     pointer-events:none;
   }
@@ -755,9 +756,9 @@
     <div class="panel-rain-bg" id="panelRainBg"></div>
     <div class="panel-weather-header">
       <div class="panel-sky-bg" id="panelSkyBg">
-        <svg class="sky-arc" viewBox="0 0 300 110" preserveAspectRatio="xMidYMax meet">
-          <path d="M40 95 A 110 110 0 0 1 260 95" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"/>
-          <circle id="skyDot" cx="40" cy="95" r="5" fill="rgba(255,255,255,0.85)"/>
+        <svg class="sky-arc" viewBox="0 0 300 190" preserveAspectRatio="xMidYMax meet">
+          <path d="M15 165 A 135 135 0 0 1 285 165" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"/>
+          <circle id="skyDot" cx="15" cy="165" r="6" fill="rgba(255,255,255,0.85)"/>
         </svg>
         <div class="sky-time sky-time-left" id="skyStartLabel"></div>
         <div class="sky-time sky-time-right" id="skyEndLabel"></div>
@@ -966,7 +967,7 @@
     }
     const frac = Math.max(0, Math.min(1, (now - start) / (end - start)));
     const theta = Math.PI * (1 - frac);
-    const cx = 150, cy = 95, r = 110;
+    const cx = 150, cy = 165, r = 135;
     const dotX = cx + r * Math.cos(theta);
     const dotY = cy - r * Math.sin(theta);
     const dot = document.getElementById('skyDot');
