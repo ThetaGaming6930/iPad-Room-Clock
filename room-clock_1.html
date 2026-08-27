@@ -605,8 +605,8 @@
     opacity:0.65;
   }
 
-  .sky-time-left{ left:12%; }
-  .sky-time-right{ right:12%; }
+  .sky-time-left{ left:3%; }
+  .sky-time-right{ right:3%; }
 
   .panel-rain-bg{
     position:absolute;
@@ -756,8 +756,8 @@
     <div class="panel-rain-bg" id="panelRainBg"></div>
     <div class="panel-weather-header">
       <div class="panel-sky-bg" id="panelSkyBg">
-        <svg class="sky-arc" viewBox="0 0 300 190" preserveAspectRatio="xMidYMax meet">
-          <path d="M15 165 A 135 135 0 0 1 285 165" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"/>
+        <svg class="sky-arc" viewBox="0 0 300 190" preserveAspectRatio="none">
+          <path d="M0 180 A 150 150 0 0 1 300 180" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"/>
           <circle id="skyDot" cx="15" cy="165" r="6" fill="rgba(255,255,255,0.85)"/>
         </svg>
         <div class="sky-time sky-time-left" id="skyStartLabel"></div>
@@ -967,7 +967,7 @@
     }
     const frac = Math.max(0, Math.min(1, (now - start) / (end - start)));
     const theta = Math.PI * (1 - frac);
-    const cx = 150, cy = 165, r = 135;
+    const cx = 150, cy = 180, r = 150;
     const dotX = cx + r * Math.cos(theta);
     const dotY = cy - r * Math.sin(theta);
     const dot = document.getElementById('skyDot');
