@@ -652,13 +652,23 @@
   // ---------- expand / collapse state machine ----------
   let expanded = null; // null | 'spotify' | 'weather'
 
+  function hideMini(el){
+    el.style.opacity = '0';
+    el.style.pointerEvents = 'none';
+  }
+
+  function showMini(el){
+    el.style.opacity = '';
+    el.style.pointerEvents = '';
+  }
+
   function collapseAll(){
     expanded = null;
     spotifyPanel.classList.remove('expanded');
     weatherPanel.classList.remove('expanded');
     stageEl.classList.remove('shift-right', 'shift-left');
-    spotifyMiniWrap.classList.remove('mini-hidden');
-    weatherMiniWrap.classList.remove('mini-hidden');
+    showMini(spotifyMiniWrap);
+    showMini(weatherMiniWrap);
   }
 
   // re-measure marquee once the panel's width transition actually finishes -
@@ -673,9 +683,9 @@
   function expandSpotify(){
     if(expanded === 'spotify'){ collapseAll(); return; }
     weatherPanel.classList.remove('expanded');
-    weatherMiniWrap.classList.remove('mini-hidden');
+    showMini(weatherMiniWrap);
     spotifyPanel.classList.add('expanded');
-    spotifyMiniWrap.classList.add('mini-hidden');
+    hideMini(spotifyMiniWrap);
     stageEl.classList.remove('shift-left');
     stageEl.classList.add('shift-right');
     expanded = 'spotify';
@@ -688,9 +698,9 @@
   function expandWeather(){
     if(expanded === 'weather'){ collapseAll(); return; }
     spotifyPanel.classList.remove('expanded');
-    spotifyMiniWrap.classList.remove('mini-hidden');
+    showMini(spotifyMiniWrap);
     weatherPanel.classList.add('expanded');
-    weatherMiniWrap.classList.add('mini-hidden');
+    hideMini(weatherMiniWrap);
     stageEl.classList.remove('shift-right');
     stageEl.classList.add('shift-left');
     expanded = 'weather';
