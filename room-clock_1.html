@@ -854,26 +854,19 @@
   }
 
   function updateAmbientWeather(data, icon){
-    document.body.classList.remove('ambient-day','ambient-rain','ambient-sunset');
-    const now = new Date();
-    const sunrise = data.daily?.sunrise?.[0] ? new Date(data.daily.sunrise[0]) : null;
-    const sunset = data.daily?.sunset?.[0] ? new Date(data.daily.sunset[0]) : null;
-    const isDay = data.current?.is_day === 1 || (!sunrise || !sunset ? now.getHours() >= 7 && now.getHours() < 19 : now >= sunrise && now < sunset);
-
-    // The "sunrise/sunset hour" is the clock hour containing either event.
-    const sunriseHour = sunrise && now.toDateString() === sunrise.toDateString() && now.getHours() === sunrise.getHours();
-    const sunsetHour = sunset && now.toDateString() === sunset.toDateString() && now.getHours() === sunset.getHours();
-
-    if(sunriseHour || sunsetHour){
-      document.body.classList.add('ambient-sunset');
-    }else if(isDay && icon === 'rain'){
-      document.body.classList.add('ambient-rain');
-    }else if(isDay){
-      document.body.classList.add('ambient-day');
-    }
+  document.body.classList.remove('ambient-day','ambient-rain','ambient-sunset');
+  const now = new Date();
+  const sunrise = data.daily?.sunrise?.[0] ? new Date(data.daily.sunrise[0]) : null;
+  const sunset = data.daily?.sunset?.[0] ? new Date(data.daily.sunset[0]) : null;
+  const isDay = data.current?.is_day === 1 || (!sunrise || !sunset ? now.getHours() >= 7 && now.getHours() < 19 : now >= sunrise && now < sunset);
+  if(isDay && icon === 'rain'){
+    document.body.classList.add('ambient-rain');
+  }else if(isDay){
+    document.body.classList.add('ambient-day');
   }
+}
 
-  async function fetchWeather(lat, lon){
+async function fetchWeather(lat, lon){
     try{
       const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&timezone=auto`);
       const data = await res.json();
