@@ -653,11 +653,18 @@
   let expanded = null; // null | 'spotify' | 'weather'
 
   function hideMini(el){
+    clearTimeout(el._hideTimer);
     el.style.opacity = '0';
     el.style.pointerEvents = 'none';
+    el._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 150);
   }
 
   function showMini(el){
+    clearTimeout(el._hideTimer);
+    el.style.display = '';
+    // force a layout flush so the fade-in actually animates instead of
+    // jumping straight to opaque
+    void el.offsetWidth;
     el.style.opacity = '';
     el.style.pointerEvents = '';
   }
