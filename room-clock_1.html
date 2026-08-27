@@ -39,22 +39,26 @@
   }
 
   .stage{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform: translate(-50%, -50%);
     display:flex;
     flex-direction:column;
     align-items:center;
     gap:clamp(14px, 2.4vh, 26px);
-    transition: transform .5s cubic-bezier(.4,0,.2,1);
+    transition: left .5s cubic-bezier(.4,0,.2,1);
     cursor:default;
     z-index:2;
   }
 
   .stage.shift-right{
-    transform: translateX(28vw);
+    left:78%;
     cursor:pointer;
   }
 
   .stage.shift-left{
-    transform: translateX(-28vw);
+    left:20%;
     cursor:pointer;
   }
 
@@ -85,12 +89,12 @@
   .time{
     font-family:'Star Killers';
     font-weight:400;
-    font-size:clamp(88px, 20vw, 236px);
-    letter-spacing:0.14em;
+    font-size:clamp(76px, 17vw, 210px);
+    letter-spacing:0.06em;
     color:var(--ink);
     line-height:1;
     font-variant-numeric: tabular-nums;
-    padding-left:0.14em;
+    padding-left:0.06em;
     transition: font-size .5s cubic-bezier(.4,0,.2,1);
   }
 
@@ -107,7 +111,7 @@
   /* only the time itself shrinks when a panel is open - weekday/date stay full size */
   .stage.shift-right .time,
   .stage.shift-left .time{
-    font-size:clamp(50px, 10vw, 120px);
+    font-size:clamp(46px, 8.5vw, 105px);
   }
 
   .stage.shift-right .meridiem,
@@ -121,10 +125,25 @@
     position:fixed;
     left:0; right:0;
     bottom:clamp(24px, 4vh, 48px);
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
+    height:80px;
     padding:0 clamp(24px, 5vw, 64px);
+    pointer-events:none;
+  }
+
+  /* Anchor the two mini widgets independently.
+     This prevents one widget disappearing from changing the other's position. */
+  #spotifyMiniWrap{
+    position:absolute;
+    left:clamp(24px, 5vw, 64px);
+    bottom:0;
+    pointer-events:auto;
+  }
+
+  #weatherWrap{
+    position:absolute;
+    right:clamp(24px, 5vw, 64px);
+    bottom:0;
+    pointer-events:auto;
   }
 
   .now-playing{
@@ -133,8 +152,6 @@
     gap:14px;
     cursor:pointer;
     transition: opacity .12s ease;
-    transform: translateZ(0);
-    will-change: opacity;
   }
 
   .np-idle{
@@ -143,8 +160,6 @@
     gap:14px;
     cursor:pointer;
     transition: opacity .12s ease;
-    transform: translateZ(0);
-    will-change: opacity;
   }
 
   .np-idle-icon{
@@ -272,8 +287,6 @@
     gap:18px;
     cursor:pointer;
     transition: opacity .12s ease;
-    transform: translateZ(0);
-    will-change: opacity;
   }
 
   .weather-icon svg{
