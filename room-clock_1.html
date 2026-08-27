@@ -38,6 +38,39 @@
     cursor:none;
   }
 
+  /* ---------- ambient weather edge glow ---------- */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    opacity:0;
+    transition:opacity 1.8s ease, box-shadow 1.8s ease;
+    box-shadow:inset 0 0 0 0 transparent;
+  }
+
+  body.ambient-day::before{
+    opacity:1;
+    box-shadow:inset 0 0 110px 18px rgba(255,218,150,0.10);
+  }
+
+  body.ambient-rain::before{
+    opacity:1;
+    box-shadow:inset 0 0 125px 22px rgba(90,175,210,0.20);
+  }
+
+  body.ambient-sunset::before{
+    opacity:1;
+    box-shadow:inset 0 0 135px 24px rgba(255,130,75,0.18);
+  }
+
+  /* album-art glow stays local to the artwork */
+  .np-art, .panel-art{
+    box-shadow:0 0 0 rgba(255,255,255,0);
+    transition:box-shadow 1.2s ease;
+  }
+
   .stage{
     position:fixed;
     top:50%;
@@ -737,6 +770,30 @@
   document.getElementById('npIdle').addEventListener('click', expandSpotify);
   document.getElementById('weatherWrap').addEventListener('click', expandWeather);
 
+  // ---------- iPad swipe navigation ----------
+  let touchStartX = 0, touchStartY = 0, touchStartTarget = null;
+
+  document.addEventListener('touchstart', (e) => {
+    if(e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchStartTarget = e.target;
+  }, {passive:true});
+
+  document.addEventListener('touchend', (e) => {
+    if(!touchStartTarget || e.changedTouches.length !== 1) return;
+    // Don't hijack taps/swipes inside expanded panels or playback controls.
+    if(touchStartTarget.closest('.side-panel, button')) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const dx = endX - touchStartX;
+    const dy = endY - touchStartY;
+    touchStartTarget = null;
+    if(Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    if(dx < 0) expandWeather();   // swipe left
+    else expandSpotify();         // swipe right
+  }, {passive:true});
+
   const weekdays = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
   const months = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
 
@@ -796,9 +853,29 @@
     return {icon:'cloud', desc:'--'};
   }
 
+  function updateAmbientWeather(data, icon){
+    document.body.classList.remove('ambient-day','ambient-rain','ambient-sunset');
+    const now = new Date();
+    const sunrise = data.daily?.sunrise?.[0] ? new Date(data.daily.sunrise[0]) : null;
+    const sunset = data.daily?.sunset?.[0] ? new Date(data.daily.sunset[0]) : null;
+    const isDay = data.current?.is_day === 1 || (!sunrise || !sunset ? now.getHours() >= 7 && now.getHours() < 19 : now >= sunrise && now < sunset);
+
+    // The "sunrise/sunset hour" is the clock hour containing either event.
+    const sunriseHour = sunrise && now.toDateString() === sunrise.toDateString() && now.getHours() === sunrise.getHours();
+    const sunsetHour = sunset && now.toDateString() === sunset.toDateString() && now.getHours() === sunset.getHours();
+
+    if(sunriseHour || sunsetHour){
+      document.body.classList.add('ambient-sunset');
+    }else if(isDay && icon === 'rain'){
+      document.body.classList.add('ambient-rain');
+    }else if(isDay){
+      document.body.classList.add('ambient-day');
+    }
+  }
+
   async function fetchWeather(lat, lon){
     try{
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto`);
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&timezone=auto`);
       const data = await res.json();
 
       const temp = Math.round(data.current.temperature_2m);
@@ -815,6 +892,9 @@
       const hi = Math.round(data.daily.temperature_2m_max[0]);
       const lo = Math.round(data.daily.temperature_2m_min[0]);
       document.getElementById('panelWeatherHiLo').innerHTML = `<span>${hi}°</span> / <span>${lo}°</span>`;
+
+      // Ambient edge glow: sunset/sunrise hour > rain > normal daytime > night.
+      updateAmbientWeather(data, w.icon);
 
       // hourly strip - next 12 hours from right now
       const nowHourIdx = new Date().getHours();
@@ -988,6 +1068,37 @@
     document.getElementById('panelIdle').style.display = 'flex';
   }
 
+  function setAlbumGlow(imgEls, imageUrl){
+    if(!imageUrl){
+      imgEls.forEach(el => el.style.boxShadow = '0 0 0 rgba(255,255,255,0)');
+      return;
+    }
+    const probe = new Image();
+    probe.crossOrigin = 'anonymous';
+    probe.onload = () => {
+      try{
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 32;
+        const ctx = canvas.getContext('2d', {willReadFrequently:true});
+        ctx.drawImage(probe, 0, 0, 32, 32);
+        const pixels = ctx.getImageData(0,0,32,32).data;
+        let r=0,g=0,b=0,n=0;
+        for(let i=0;i<pixels.length;i+=4){
+          const a=pixels[i+3];
+          if(a<180) continue;
+          r+=pixels[i]; g+=pixels[i+1]; b+=pixels[i+2]; n++;
+        }
+        if(!n) return;
+        r=Math.round(r/n); g=Math.round(g/n); b=Math.round(b/n);
+        const glow = `0 0 32px 8px rgba(${r},${g},${b},0.28)`;
+        imgEls.forEach(el => el.style.boxShadow = glow);
+      }catch(e){
+        // Some image hosts disallow canvas access; simply keep the neutral glow.
+      }
+    };
+    probe.src = imageUrl;
+  }
+
   function updateNowPlaying(data){
     document.getElementById('npWrap').style.display = 'flex';
     document.getElementById('npIdle').style.display = 'none';
@@ -1003,6 +1114,7 @@
     document.getElementById('npTrack').textContent = track;
     document.getElementById('npArtist').textContent = artist;
     document.getElementById('panelArt').src = art;
+    setAlbumGlow([document.getElementById('npArt'), document.getElementById('panelArt')], art);
     document.getElementById('panelTrack').textContent = track;
     document.getElementById('panelArtist').textContent = artist;
 
@@ -1060,6 +1172,28 @@
   }, 1000);
 
   document.getElementById('connectBtn').addEventListener('click', spotifyLogin);
+
+  // Tap/click either progress bar to seek. The iPad touch target is deliberately generous.
+  function addSeekHandler(trackEl){
+    trackEl.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if(!localDuration) return;
+      const rect = trackEl.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const positionMs = Math.round(localDuration * ratio);
+      const token = await getValidSpotifyToken();
+      if(!token) return;
+      try{
+        await fetch(`https://api.spotify.com/v1/me/player/seek?position_ms=${positionMs}`, {
+          method:'PUT', headers:{Authorization:'Bearer ' + token}
+        });
+        localProgress = positionMs;
+        renderProgress();
+      }catch(e){}
+    });
+  }
+  addSeekHandler(document.querySelector('.np-bar-track'));
+  addSeekHandler(document.querySelector('.panel-bar-track'));
 
   // ---------- playback controls ----------
   async function spotifyControl(method, endpoint){
