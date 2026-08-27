@@ -377,16 +377,6 @@
   .panel-left{ left:clamp(20px, 3.5vw, 48px); }
   .panel-right{ right:clamp(20px, 3.5vw, 48px); }
 
-  /* the weather panel's content (temp + sky arc + forecast) should sit
-     lower, grouped near the bottom, rather than spread across the full
-     height - the sky arc needs headroom above it that the Spotify panel
-     doesn't, so this is scoped to #weatherPanel only */
-  #weatherPanel{
-    justify-content:flex-end;
-    gap:clamp(38px, 5.5vw, 64px);
-    padding-bottom:clamp(38px, 5vw, 60px) !important;
-  }
-
   .side-panel.expanded{
     top:var(--pm);
     height:calc(100vh - 2 * var(--pm));
@@ -539,12 +529,11 @@
   /* weather panel */
 
   .panel-weather-header{
-    position:relative;
     display:flex;
     flex-direction:column;
     align-items:center;
     gap:6px;
-    padding-top:var(--sky-h);
+    transform:translateY(clamp(18px, 2.2vw, 30px));
   }
 
   .panel-weather-icon svg{
@@ -581,11 +570,10 @@
   /* ---------- weather panel background layers (sky arc + rain) ---------- */
 
   .panel-sky-bg{
-    --sky-h:clamp(180px, 28vw, 280px);
     position:absolute;
     left:0; right:0;
-    top:0;
-    height:var(--sky-h);
+    top:clamp(44px, 6vw, 72px);
+    height:120px;
     z-index:-1;
     pointer-events:none;
   }
@@ -606,8 +594,8 @@
     opacity:0.65;
   }
 
-  .sky-time-left{ left:3%; }
-  .sky-time-right{ right:3%; }
+  .sky-time-left{ left:12%; }
+  .sky-time-right{ right:12%; }
 
   .panel-rain-bg{
     position:absolute;
@@ -755,15 +743,15 @@
 
   <div class="side-panel panel-right" id="weatherPanel">
     <div class="panel-rain-bg" id="panelRainBg"></div>
+    <div class="panel-sky-bg" id="panelSkyBg">
+      <svg class="sky-arc" viewBox="0 0 300 110" preserveAspectRatio="xMidYMax meet">
+        <path d="M40 95 A 110 110 0 0 1 260 95" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"/>
+        <circle id="skyDot" cx="40" cy="95" r="5" fill="rgba(255,255,255,0.85)"/>
+      </svg>
+      <div class="sky-time sky-time-left" id="skyStartLabel"></div>
+      <div class="sky-time sky-time-right" id="skyEndLabel"></div>
+    </div>
     <div class="panel-weather-header">
-      <div class="panel-sky-bg" id="panelSkyBg">
-        <svg class="sky-arc" viewBox="0 0 1000 500" preserveAspectRatio="none">
-          <path d="M0 500 A 500 500 0 0 1 1000 500" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2" vector-effect="non-scaling-stroke"/>
-          <circle id="skyDot" cx="0" cy="500" r="7" fill="rgba(255,255,255,0.85)"/>
-        </svg>
-        <div class="sky-time sky-time-left" id="skyStartLabel"></div>
-        <div class="sky-time sky-time-right" id="skyEndLabel"></div>
-      </div>
       <div class="panel-weather-icon" id="panelWeatherIcon"></div>
       <div class="panel-weather-temp" id="panelWeatherTemp">--°</div>
       <div class="panel-weather-desc" id="panelWeatherDesc"></div>
@@ -919,8 +907,8 @@
   const weatherIcons = {
     sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.4" x2="12" y2="4.6"/><line x1="12" y1="19.4" x2="12" y2="21.6"/><line x1="2.4" y1="12" x2="4.6" y2="12"/><line x1="19.4" y1="12" x2="21.6" y2="12"/><line x1="5.1" y1="5.1" x2="6.6" y2="6.6"/><line x1="17.4" y1="17.4" x2="18.9" y2="18.9"/><line x1="5.1" y1="18.9" x2="6.6" y2="17.4"/><line x1="17.4" y1="6.6" x2="18.9" y2="5.1"/></svg>`,
     moon: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
-    'cloud-sun': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="7.8" cy="7" r="2.9" stroke-width="1.3"/><line x1="7.8" y1="1.7" x2="7.8" y2="3" stroke-width="1.3"/><line x1="2.5" y1="7" x2="3.8" y2="7" stroke-width="1.3"/><line x1="4" y1="3.2" x2="4.9" y2="4.1" stroke-width="1.3"/><path d="M7 18a4.5 4.5 0 0 1-.4-8.98 6 6 0 0 1 11.4 2A4 4 0 0 1 17 18H7z" fill="var(--bg)" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
-    'cloud-moon': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M9.6 2.8A3.6 3.6 0 1 0 8.9 7.6 2.8 2.8 0 0 1 9.6 2.8z" fill="currentColor" stroke="none"/><path d="M7 18a4.5 4.5 0 0 1-.4-8.98 6 6 0 0 1 11.4 2A4 4 0 0 1 17 18H7z" fill="var(--bg)" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
+    'cloud-sun': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="7.8" cy="7" r="2.9" stroke-width="1.3"/><line x1="7.8" y1="1.7" x2="7.8" y2="3" stroke-width="1.3"/><line x1="2.5" y1="7" x2="3.8" y2="7" stroke-width="1.3"/><line x1="4" y1="3.2" x2="4.9" y2="4.1" stroke-width="1.3"/><path d="M7 18a4.5 4.5 0 0 1-.4-8.98 6 6 0 0 1 11.4 2A4 4 0 0 1 17 18H7z" stroke-width="1.4" stroke-linejoin="round" fill="#000"/></svg>`,
+    'cloud-moon': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M9.6 2.8A3.6 3.6 0 1 0 8.9 7.6 2.8 2.8 0 0 1 9.6 2.8z" fill="currentColor" stroke="none"/><path d="M7 18a4.5 4.5 0 0 1-.4-8.98 6 6 0 0 1 11.4 2A4 4 0 0 1 17 18H7z" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
     cloud: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.5-8.96 6 6 0 0 1 11.53 1.75A4 4 0 0 1 17 18H7z"/></svg>`,
     rain: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 16.9 5.5 4.5 4.5 0 0 1 16 15H6.5z"/><line x1="8" y1="18" x2="7" y2="21"/><line x1="12" y1="18" x2="11" y2="21"/><line x1="16" y1="18" x2="15" y2="21"/></svg>`,
     snow: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 15a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 16.9 5.5 4.5 4.5 0 0 1 16 15H6.5z"/><g stroke-width="1.2"><line x1="8" y1="17.4" x2="8" y2="20.6"/><line x1="6.6" y1="18.2" x2="9.4" y2="19.8"/><line x1="9.4" y1="18.2" x2="6.6" y2="19.8"/><line x1="16" y1="17.4" x2="16" y2="20.6"/><line x1="14.6" y1="18.2" x2="17.4" y2="19.8"/><line x1="17.4" y1="18.2" x2="14.6" y2="19.8"/></g></svg>`,
@@ -968,7 +956,7 @@
     }
     const frac = Math.max(0, Math.min(1, (now - start) / (end - start)));
     const theta = Math.PI * (1 - frac);
-    const cx = 500, cy = 500, r = 500;
+    const cx = 150, cy = 95, r = 110;
     const dotX = cx + r * Math.cos(theta);
     const dotY = cy - r * Math.sin(theta);
     const dot = document.getElementById('skyDot');
